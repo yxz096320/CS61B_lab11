@@ -167,34 +167,43 @@ public class BinaryTree implements Dictionary {
 			  return node.entry;
 		  }
 		  else if(node.rightChild != null && node.leftChild == null){
-			  BinaryTreeNode smallestLarger = min(node.rightChild);
-			  if(smallestLarger.parent == node){
-				  root = smallestLarger;
-				  size --;
-				  return node.entry;
-			  }
-			  root = smallestLarger;
-			  smallestLarger.parent.leftChild = null;
-			  smallestLarger.rightChild = node.rightChild;
-			  smallestLarger.parent = null;
-			  node.rightChild.parent = smallestLarger;
+			  root = node.rightChild;
+			  node.rightChild.parent = null;
+			  
+			  size --;
+			  return node.entry;
+		  }
+		  else if(node.rightChild == null && node.leftChild != null){
+			  root = node.leftChild;
+			  node.leftChild.parent = null;
 			  
 			  size --;
 			  return node.entry;
 		  }
 		  else{
-			  BinaryTreeNode largestSmaller = max(node.leftChild);
+			  BinaryTreeNode largestSmaller = min(node.rightChild);
 			  if(largestSmaller.parent == node){
 				  root = largestSmaller;
 				  largestSmaller.rightChild = node.rightChild;
+				  largestSmaller.leftChild = node.leftChild;
+				  node.rightChild.parent = largestSmaller;
+				  node.leftChild.parent = largestSmaller;
+				  largestSmaller.parent = null;
 				  size --;
 				  return node.entry;
 			  }
 			  root = largestSmaller;
-			  largestSmaller.parent.rightChild = null;
-			  largestSmaller.parent = null;
+			  if(largestSmaller.rightChild != null){
+				  largestSmaller.parent.leftChild = largestSmaller.rightChild;
+			  }else{
+				  largestSmaller.parent.leftChild = null;
+			  }
+			  
 			  largestSmaller.leftChild = node.leftChild;
 			  largestSmaller.rightChild = node.rightChild;
+			  node.rightChild.parent = largestSmaller;
+			  node.leftChild.parent = largestSmaller;
+			  largestSmaller.parent = null;
 			  size -- ;
 			  return node.entry;
 		  }
@@ -233,22 +242,28 @@ public class BinaryTree implements Dictionary {
 	  }else{
 		  //find the largest element that smaller than node
 		  BinaryTreeNode largestSmaller = min(node.rightChild);
+		  //determine node is left child or right child
 		  if(node.parent.leftChild == node){
 			  node.parent.leftChild = largestSmaller;
 		  }
 		  else{
 			  node.parent.rightChild = largestSmaller;
 		  }
-		  largestSmaller.parent.leftChild = null;
-		  largestSmaller.parent = node.parent;
-		  if(largestSmaller.parent != node){
-			  largestSmaller.leftChild = node.leftChild;
-			  largestSmaller.rightChild = node.rightChild;
-		  }
-		  else{
-			  largestSmaller.leftChild = node.leftChild;
-			  largestSmaller.rightChild = null;
-		  }
+		  
+		  if(largestSmaller.parent == node){
+			 largestSmaller.leftChild = node.leftChild;
+			 node.leftChild.parent = largestSmaller;
+		 }else{
+			 largestSmaller.leftChild = node.leftChild;
+			 node.leftChild.parent = largestSmaller;
+			 if(largestSmaller.rightChild == null){
+				 largestSmaller.parent.leftChild = null; 
+			 }else{
+				 largestSmaller.parent.leftChild = largestSmaller.rightChild;
+				 largestSmaller.rightChild.parent = largestSmaller.parent;
+			 }
+		 }
+		 largestSmaller.parent = node.parent;
 	  }
 	  size--;
 	  return node.entry;
