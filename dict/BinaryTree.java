@@ -131,6 +131,17 @@ public class BinaryTree implements Dictionary {
 
   private BinaryTreeNode findHelper(Comparable key, BinaryTreeNode node) {
     // Replace the following line with your solution.
+    BinaryTreeNode node1 = node;
+    while(node1 != null){
+    	int temp = key.compareTo((Comparable)node1.entry.key());
+    	if(temp < 0){
+    		node1 = node1.leftChild;
+    	} else if(temp > 0){
+    		node1 = node1.rightChild;
+    	}else{
+    		return node1;
+    	}
+    }
     return null;
   }
 
@@ -147,7 +158,124 @@ public class BinaryTree implements Dictionary {
    **/
   public Entry remove(Object key) {
     // Replace the following line with your solution.
-    return null;
+	  BinaryTreeNode node = findHelper((Comparable) key, root);
+	  //node is root
+	  if(node == root){
+		  if(node.leftChild == null && node.rightChild == null){
+			  size = 0;
+			  root = null;
+			  return node.entry;
+		  }
+		  else if(node.rightChild != null && node.leftChild == null){
+			  BinaryTreeNode smallestLarger = min(node.rightChild);
+			  if(smallestLarger.parent == node){
+				  root = smallestLarger;
+				  size --;
+				  return node.entry;
+			  }
+			  root = smallestLarger;
+			  smallestLarger.parent.leftChild = null;
+			  smallestLarger.rightChild = node.rightChild;
+			  smallestLarger.parent = null;
+			  node.rightChild.parent = smallestLarger;
+			  
+			  size --;
+			  return node.entry;
+		  }
+		  else{
+			  BinaryTreeNode largestSmaller = max(node.leftChild);
+			  if(largestSmaller.parent == node){
+				  root = largestSmaller;
+				  largestSmaller.rightChild = node.rightChild;
+				  size --;
+				  return node.entry;
+			  }
+			  root = largestSmaller;
+			  largestSmaller.parent.rightChild = null;
+			  largestSmaller.parent = null;
+			  largestSmaller.leftChild = node.leftChild;
+			  largestSmaller.rightChild = node.rightChild;
+			  size -- ;
+			  return node.entry;
+		  }
+		  
+	  }
+	//node is a leaf, no children
+	  if(node.leftChild == null && node.rightChild == null){
+		  if(node == node.parent.leftChild){
+			  node.parent.leftChild = null;
+		  }
+		  else{
+			  node.parent.rightChild = null;
+		  }
+
+		//node only has left child
+	  } else if(node.leftChild != null&& node.rightChild== null){
+		  if(node.parent.leftChild == node){
+			  node.parent.leftChild = node.leftChild;
+		  }
+		  else{
+			  node.parent.rightChild = node.leftChild;
+		  }
+		  node.leftChild.parent = node.parent;
+		  
+		//node only has right child
+	  }else if(node.rightChild != null && node.leftChild == null){
+		  if(node.parent.leftChild == node){
+			  node.parent.leftChild = node.rightChild;
+		  }
+		  else{
+			  node.parent.rightChild = node.rightChild;
+		  }
+		  node.rightChild.parent = node.parent;
+		  
+		  //node has both children
+	  }else{
+		  //find the largest element that smaller than node
+		  BinaryTreeNode largestSmaller = min(node.rightChild);
+		  if(node.parent.leftChild == node){
+			  node.parent.leftChild = largestSmaller;
+		  }
+		  else{
+			  node.parent.rightChild = largestSmaller;
+		  }
+		  largestSmaller.parent.leftChild = null;
+		  largestSmaller.parent = node.parent;
+		  if(largestSmaller.parent != node){
+			  largestSmaller.leftChild = node.leftChild;
+			  largestSmaller.rightChild = node.rightChild;
+		  }
+		  else{
+			  largestSmaller.leftChild = node.leftChild;
+			  largestSmaller.rightChild = null;
+		  }
+	  }
+	  size--;
+	  return node.entry;
+  }
+  
+  public BinaryTreeNode min(BinaryTreeNode n){
+	  BinaryTreeNode node = n;
+	  BinaryTreeNode nodeMin = n;
+	  while(node != null){
+		  if(((Comparable)node.entry.key()).compareTo( (Comparable)nodeMin.entry.key())<0){
+			  nodeMin = node;
+		  }
+		  node = node.leftChild;
+	  }
+	  return nodeMin;
+  }
+  
+  public BinaryTreeNode max(BinaryTreeNode n){
+	  BinaryTreeNode node = n;
+	  BinaryTreeNode nodeMax = n;
+	  while(node != null){
+		  if(((Comparable)node.entry.key()).compareTo( (Comparable)nodeMax.entry.key()) > 0){
+			  nodeMax = node;
+		  }
+		  node = node.rightChild;
+	  }
+	  return nodeMax; 
   }
 
   /**
